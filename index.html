@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>نموذج مالي لتسمين الخراف</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      line-height: 1.6;
+      padding: 20px;
+    }
+    #app {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.6rem;
+      color: #1a1a2e;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 3px solid #2d6a4f;
+    }
+    .section {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 18px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    }
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #2d6a4f;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 20px;
+      background: #2d6a4f;
+      border-radius: 2px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 20px;
+    }
+    @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+    .field {
+      display: flex;
+      flex-direction: column;
+    }
+    .field label {
+      font-size: .82rem;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 3px;
+    }
+    .field .sub {
+      font-size: .72rem;
+      color: #888;
+      margin-bottom: 2px;
+    }
+    .field input {
+      padding: 10px 12px;
+      border: 1.5px solid #d9d9d9;
+      border-radius: 8px;
+      font-size: .95rem;
+      transition: border .2s;
+      text-align: left;
+      direction: ltr;
+      background: #fafafa;
+    }
+    .field input:focus {
+      outline: none;
+      border-color: #2d6a4f;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(45,106,79,.12);
+    }
+    .field input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: #d9d9d9;
+      outline: none;
+      padding: 0;
+      margin: 6px 0 2px;
+      direction: ltr;
+      border: none;
+      box-shadow: none;
+    }
+    .field input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #2d6a4f;
+      cursor: pointer;
+      border: 2px solid #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,.25);
+    }
+    .field input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #2d6a4f;
+      cursor: pointer;
+      border: 2px solid #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,.25);
+    }
+    .range-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: .7rem;
+      color: #999;
+      padding: 0 1px;
+    }
+    .results-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 600px) { .results-grid { grid-template-columns: 1fr; } }
+    .result-card {
+      background: linear-gradient(135deg, #f8f9fa, #fff);
+      border: 1.5px solid #e8e8e8;
+      border-radius: 10px;
+      padding: 14px 16px;
+      text-align: center;
+    }
+    .result-card .label {
+      font-size: .8rem;
+      color: #666;
+      margin-bottom: 4px;
+    }
+    .result-card .value {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+    .result-card.highlight {
+      background: linear-gradient(135deg, #2d6a4f, #40916c);
+      border-color: #2d6a4f;
+    }
+    .result-card.highlight .label { color: rgba(255,255,255,.75); }
+    .result-card.highlight .value { color: #fff; }
+    .result-card.danger {
+      background: linear-gradient(135deg, #e63946, #ff6b6b);
+      border-color: #e63946;
+    }
+    .result-card.danger .label { color: rgba(255,255,255,.75); }
+    .result-card.danger .value { color: #fff; }
+    .result-card .sub-value {
+      font-size: .78rem;
+      color: #999;
+      margin-top: 2px;
+    }
+    .result-card.highlight .sub-value { color: rgba(255,255,255,.6); }
+    .footer {
+      text-align: center;
+      font-size: .78rem;
+      color: #999;
+      margin-top: 24px;
+      padding-top: 12px;
+      border-top: 1px solid #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h1>نموذج مالي لتسمين الخراف</h1>
+
+    <div class="section">
+      <div class="section-title">التكاليف الثابتة (شهرياً)</div>
+      <div class="grid">
+        <div class="field">
+          <label>إيجار شهري</label>
+          <input type="number" v-model.number="fixed.rent" min="0" step="100" />
+        </div>
+        <div class="field">
+          <label>عمالة شهرية</label>
+          <input type="number" v-model.number="fixed.labor" min="0" step="100" />
+        </div>
+        <div class="field">
+          <label>فواتير شهرية</label>
+          <input type="number" v-model.number="fixed.utilities" min="0" step="100" />
+        </div>
+        <div class="field">
+          <label>متابعة طبية شهرية</label>
+          <input type="number" v-model.number="fixed.medical" min="0" step="100" />
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">التكاليف المتغيرة (للكل رأس)</div>
+      <div class="grid">
+        <div class="field">
+          <label>تكلفة شراء الرأس</label>
+          <input type="number" v-model.number="variable.purchasePrice" min="0" step="100" />
+        </div>
+        <div class="field">
+          <label>تحصينات للرأس</label>
+          <input type="number" v-model.number="variable.vaccinations" min="0" step="10" />
+        </div>
+        <div class="field">
+          <label>متوسط دريس شهري للرأس (كجم)</label>
+          <input type="number" v-model.number="variable.hayKg" min="0" step="0.1" />
+        </div>
+        <div class="field">
+          <label>متوسط علف شهري للرأس (كجم)</label>
+          <input type="number" v-model.number="variable.feedKg" min="0" step="0.1" />
+        </div>
+        <div class="field">
+          <label>سعر طن دريس</label>
+          <input type="number" v-model.number="variable.hayPricePerTon" min="0" step="100" />
+        </div>
+        <div class="field">
+          <label>سعر طن علف</label>
+          <input type="number" v-model.number="variable.feedPricePerTon" min="0" step="100" />
+        </div>
+        <div class="field">
+          <label class="sub">تكلفة دريس للرأس شهرياً (محسوب)</label>
+          <label>{{ fmt(perHeadHayCost) }} ج.م</label>
+        </div>
+        <div class="field">
+          <label class="sub">تكلفة علف للرأس شهرياً (محسوب)</label>
+          <label>{{ fmt(perHeadFeedCost) }} ج.م</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">المتغيرات</div>
+      <div class="grid">
+        <div class="field">
+          <label>عدد القطيع: {{ params.herdSize }}</label>
+          <input type="range" v-model.number="params.herdSize" min="10" max="50" step="1" />
+          <div class="range-labels"><span>50</span><span>10</span></div>
+        </div>
+        <div class="field">
+          <label>معدل النفوق: {{ params.mortalityRate }}%</label>
+          <input type="range" v-model.number="params.mortalityRate" min="0" max="20" step="0.5" />
+          <div class="range-labels"><span>20%</span><span>0%</span></div>
+        </div>
+        <div class="field">
+          <label>عدد شهور الدورة</label>
+          <input type="number" v-model.number="params.cycleMonths" min="1" step="1" />
+        </div>
+        <div class="field">
+          <label>ثمن بيع الرأس (ج.م/كجم)</label>
+          <input type="number" v-model.number="params.salePricePerKg" min="0" step="10" />
+        </div>
+        <div class="field">
+          <label>وزن البيع المستهدف (كجم)</label>
+          <input type="number" v-model.number="params.targetWeight" min="0" step="1" />
+        </div>
+        <div class="field">
+          <label>نسبة الاشزاف (%)</label>
+          <input type="number" v-model.number="params.overheadRate" min="0" max="100" step="1" />
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">النتائج</div>
+      <div class="results-grid">
+        <div class="result-card">
+          <div class="label">تكلفة دريس للرأس شهرياً</div>
+          <div class="value">{{ fmt(perHeadHayCost) }}</div>
+          <div class="sub-value">ج.م</div>
+        </div>
+        <div class="result-card">
+          <div class="label">تكلفة علف للرأس شهرياً</div>
+          <div class="value">{{ fmt(perHeadFeedCost) }}</div>
+          <div class="sub-value">ج.م</div>
+        </div>
+        <div class="result-card">
+          <div class="label">ثمن بيع الرأس</div>
+          <div class="value">{{ fmt(salePricePerHeadVal) }}</div>
+          <div class="sub-value">ج.م</div>
+        </div>
+        <div class="result-card">
+          <div class="label">عدد رؤوس البيع</div>
+          <div class="value">{{ headsForSale }}</div>
+          <div class="sub-value">رأس</div>
+        </div>
+        <div class="result-card">
+          <div class="label">معدل النفوق</div>
+          <div class="value">{{ params.mortalityRate }}%</div>
+          <div class="sub-value">من {{ params.herdSize }} رأس</div>
+        </div>
+        <div class="result-card">
+          <div class="label">نسبة الاشزاف</div>
+          <div class="value">{{ params.overheadRate }}%</div>
+          <div class="sub-value">من الربح</div>
+        </div>
+        <div class="result-card">
+          <div class="label">إجمالي التكاليف الثابتة</div>
+          <div class="value">{{ fmt(fixedCost) }}</div>
+          <div class="sub-value">ج.م</div>
+        </div>
+        <div class="result-card">
+          <div class="label">إجمالي التكاليف المتغيرة</div>
+          <div class="value">{{ fmt(variableCost) }}</div>
+          <div class="sub-value">ج.م</div>
+        </div>
+        <div class="result-card">
+          <div class="label">إجمالي التكاليف</div>
+          <div class="value">{{ fmt(totalCost) }}</div>
+          <div class="sub-value">ج.م</div>
+        </div>
+        <div class="result-card highlight">
+          <div class="label">العائد (الإيرادات)</div>
+          <div class="value">{{ fmt(revenueVal) }}</div>
+          <div class="sub-value">ج.م</div>
+        </div>
+        <div class="result-card highlight">
+          <div class="label">الربح</div>
+          <div class="value">{{ fmt(profitVal) }}</div>
+          <div class="sub-value">ج.م</div>
+        </div>
+        <div class="result-card" :class="netProfitVal >= 0 ? 'highlight' : 'danger'">
+          <div class="label">الربح الصافي</div>
+          <div class="value">{{ fmt(netProfitVal) }}</div>
+          <div class="sub-value">ج.م</div>
+        </div>
+        <div class="result-card" :class="roi >= 0 ? 'highlight' : 'danger'">
+          <div class="label">العائد على الاستثمار (ROI)</div>
+          <div class="value">{{ roi.toFixed(2) }}%</div>
+          <div class="sub-value">صافي الربح ÷ إجمالي التكاليف</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">تم التطوير بناءً على النموذج المالي لتسمين الخراف</div>
+  </div>
+
+  <script>
+    const { createApp, reactive, computed } = Vue;
+
+    const fmt = (val) => Number(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    createApp({
+      setup() {
+        const fixed = reactive({
+          rent: 5000,
+          labor: 4000,
+          utilities: 2000,
+          medical: 1000,
+        });
+
+        const variable = reactive({
+          purchasePrice: 6000,
+          hayKg: 11.1,
+          feedKg: 33.3,
+          hayPricePerTon: 8600,
+          feedPricePerTon: 20000,
+          vaccinations: 200,
+        });
+
+        const params = reactive({
+          herdSize: 20,
+          mortalityRate: 5,
+          cycleMonths: 4,
+          salePricePerKg: 250,
+          targetWeight: 50,
+          overheadRate: 10,
+        });
+
+        const mortalityDecimal = computed(() => params.mortalityRate / 100);
+        const overheadDecimal = computed(() => params.overheadRate / 100);
+
+        const perHeadHayCost = computed(() => (variable.hayKg / 1000) * variable.hayPricePerTon);
+        const perHeadFeedCost = computed(() => (variable.feedKg / 1000) * variable.feedPricePerTon);
+
+        const monthlyFixed = computed(() => fixed.rent + fixed.labor + fixed.utilities + fixed.medical);
+
+        const perHeadTotal = computed(() =>
+          variable.purchasePrice +
+          perHeadHayCost.value * params.cycleMonths +
+          perHeadFeedCost.value * params.cycleMonths +
+          variable.vaccinations
+        );
+
+        const fixedCost = computed(() => monthlyFixed.value * params.cycleMonths);
+        const variableCost = computed(() => perHeadTotal.value * params.herdSize);
+        const totalCost = computed(() => fixedCost.value + variableCost.value);
+
+        const salePricePerHeadVal = computed(() => params.salePricePerKg * params.targetWeight);
+        const headsForSale = computed(() => params.herdSize * (1 - mortalityDecimal.value));
+        const revenueVal = computed(() => headsForSale.value * salePricePerHeadVal.value);
+        const profitVal = computed(() => revenueVal.value - totalCost.value);
+        const netProfitVal = computed(() => profitVal.value * (1 - overheadDecimal.value));
+        const roi = computed(() => totalCost.value ? (netProfitVal.value / totalCost.value) * 100 : 0);
+
+        return {
+          fixed,
+          variable,
+          params,
+          fmt,
+          monthlyFixed,
+          perHeadHayCost,
+          perHeadFeedCost,
+          fixedCost,
+          variableCost,
+          totalCost,
+          salePricePerHeadVal,
+          headsForSale,
+          revenueVal,
+          profitVal,
+          netProfitVal,
+          roi,
+        };
+      },
+    }).mount('#app');
+  </script>
+</body>
+</html>
